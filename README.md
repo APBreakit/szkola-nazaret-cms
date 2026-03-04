@@ -1,3 +1,9 @@
+# Katolicka Szkoła Podstawowa im. Świętej Rodziny z Nazaretu - CMS
+
+## Status Wdrożenia
+Aplikacja została wdrożona na serwerze Coolify!
+URL: [https://iwsow8kg0okgsg400gsog40g.breackly.cloud](https://iwsow8kg0okgsg400gsog40g.breackly.cloud)
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
