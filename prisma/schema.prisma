@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// USER & AUTHENTICATION (CMS ADMINS)
+// -----------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      String   @default("admin") // e.g., admin, editor, teacher
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  posts     Post[]
+  galleries Gallery[]
+  media     Media[]
+}
+
+// -----------------------------------------------------------------------------
+// CONTENT TYPES
+// -----------------------------------------------------------------------------
+
+model Post {
+  id                 String    @id @default(uuid())
+  title              String
+  slug               String    @unique
+  content            String?   @db.Text
+  excerpt            String?   @db.Text
+  type               String    // e.g., 'news', 'announcement', 'competition', 'parents_board'
+  status             String    @default("draft") // 'draft', 'published', 'archived'
+  published          Boolean   @default(false)
+  imageUrl           String?   
+  
+  // Calendar / Event specific
+  addToCalendar      Boolean   @default(false)
+  calendarDate       DateTime?
+  calendarEndDate    DateTime?
+  
+  // Competition specific
+  competitionStatus  String?
+  competitionStart   DateTime?
+  competitionEnd     DateTime?
+  
+  // Categories/Tags
+  category           String?
+  
+  authorId           String?
+  author             User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  
+  publishedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@index([type, status])
+  @@index([slug])
+}
+
+// -----------------------------------------------------------------------------
+// SCHOOL STRUCTURE
+// -----------------------------------------------------------------------------
+
+model ClassGroup {
+  id                 String    @id @default(uuid())
+  name               String    // e.g., '1A', '2B'
+  slug               String    @unique
+  description        String?   @db.Text
+  
+  teacherName        String?   // Head teacher (wychowawca)
+  teacherPhotoUrl    String?
+  roomNumber         String?
+  contactHours       String?   @db.Text // Konsultacje dla rodziców
+  
+  scheduleUrl        String?   // Plan lekcji (URL to PDF/Image)
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model Staff {
+  id                 String    @id @default(uuid())
+  firstName          String
+  lastName           String
+  role               String    // np. "Dyrektor", "Wicedyrektor", "Nauczyciel"
+  subjects           String?   // np. "Matematyka, Fizyka"
+  photoUrl           String?
+  description        String?   @db.Text
+  contactEmail       String?
+  order              Int       @default(0) // Do sortowania na stronie 'Kadra'
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model MealPlan {
+  id                 String    @id @default(uuid())
+  weekStart          DateTime
+  weekEnd            DateTime
+  pdfUrl             String?
+  imageUrl           String?
+  isCurrent          Boolean   @default(false)
+  
+  uploadedById       String?
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+// -----------------------------------------------------------------------------
+// MEDIA & GALLERIES
+// -----------------------------------------------------------------------------
+
+model Gallery {
+  id                 String    @id @default(uuid())
+  title              String
+  slug               String    @unique
+  description        String?   @db.Text
+  category           String?   // np. 'events', 'trips', 'school_life'
+  coverImageUrl      String?
+  status             String    @default("draft") // 'draft', 'published'
+  
+  authorId           String?
+  author             User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  
+  images             GalleryImage[]
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+}
+
+model GalleryImage {
+  id                 String    @id @default(uuid())
+  imageUrl           String
+  title              String?
+  sortOrder          Int       @default(0)
+  
+  galleryId          String
+  gallery            Gallery   @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  
+  createdAt          DateTime  @default(now())
+}
+
+model Media {
+  id                 String    @id @default(uuid())
+  fileName           String
+  fileUrl            String
+  fileType           String    // np. 'application/pdf', 'image/jpeg'
+  fileSize           Int?
+  
+  category           String?   // np. 'documents', 'bip', 'schedules'
+  subcategory        String?   // np. 'statut', 'wewnatrzszkolny_system_oceniania'
+  
+  uploadedById       String?
+  uploader           User?     @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
+  
+  createdAt          DateTime  @default(now())
+}
