@@ -1,7 +1,6 @@
 import type React from "react"
 import type { Metadata } from "next"
 import { Nunito } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 import CookieConsentManager from "@/components/cookie-consent-manager"
@@ -101,7 +100,6 @@ export default function RootLayout({
           <ScrollToTop />
           <Suspense fallback={null}>{children}</Suspense>
           <AccessibilityWidget />
-          <Analytics />
           <CookieConsentManager
             brandName="Katolicka Szkoła Podstawowa Nazaret"
             policyLinks={{
