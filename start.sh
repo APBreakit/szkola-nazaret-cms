@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 echo "=== STARTING SCHOOL CMS STARTUP SCRIPT ==="
 echo "Current directory: $(pwd)"
@@ -11,12 +10,12 @@ npx prisma generate
 
 # Pushing database schema
 echo "Pushing database schema..."
-npx prisma db push --accept-data-loss
+npx prisma db push --accept-data-loss || echo "Prisma db push failed, continuing anyway..."
 
 # Seeding initial data
 echo "Seeding initial data..."
-npx prisma db seed
+npx prisma db seed || echo "Prisma seed failed, continuing anyway..."
 
 # Start the application
 echo "Starting Next.js..."
-node server.js
+exec node server.js

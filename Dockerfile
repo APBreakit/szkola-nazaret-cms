@@ -53,6 +53,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 RUN chmod +x ./start.sh
 
+# Ensure curl is available for healthchecks
+RUN apk add --no-cache curl
+
 # Ensure prisma and tsx are available in runner
 # We copy node_modules above, so prisma/tsx should be there if they were in dependencies
 # But npx prisma needs the cli
