@@ -6,13 +6,10 @@ const prismaClientSingleton = () => {
     console.error("CRITICAL: DATABASE_URL is not defined in environment variables!")
   }
 
-  return new PrismaClient({
-    datasources: {
-      db: {
-        url: url
-      }
-    }
-  })
+  // Note: Prisma naturally picks up DATABASE_URL from environment variables.
+  // Explicitly passing it via datasources is sometimes required for dynamic URLs,
+  // but it needs correct typing or a simple cast if the schema allows it.
+  return new PrismaClient()
 }
 
 declare global {
