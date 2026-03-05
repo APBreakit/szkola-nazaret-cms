@@ -43,6 +43,7 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/node_modules ./node_modules
 
 # Extract standalone build
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -52,10 +53,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder --chown=nextjs:nodejs /app/start.sh ./start.sh
 RUN chmod +x ./start.sh
 
-# Ensure prisma binaries are available in standalone
-# Prisma binaries are usually in node_modules/.pnpm/@prisma+client@...
-# Standing next.js output usually handles this, but we keep prisma CLI for db push in start.sh
-RUN npm install -g prisma
+# Ensure prisma and tsx are available in runner
+# We copy node_modules above, so prisma/tsx should be there if they were in dependencies
+# But npx prisma needs the cli
+RUN npm install -g prisma tsx pnpm
 
 USER nextjs
 
