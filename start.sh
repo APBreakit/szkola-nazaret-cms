@@ -13,6 +13,10 @@ npx prisma generate
 echo "Pushing database schema..."
 npx prisma db push --accept-data-loss
 
+# Seeding initial data
+echo "Seeding initial data..."
+npx prisma db seed
+
 # Start the application
 echo "Starting Next.js..."
 node server.js
