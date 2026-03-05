@@ -4,162 +4,208 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
 }
-
-// -----------------------------------------------------------------------------
-// USER & AUTHENTICATION (CMS ADMINS)
-// -----------------------------------------------------------------------------
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
-  role      String   @default("admin") // e.g., admin, editor, teacher
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  posts     Post[]
-  galleries Gallery[]
-  media     Media[]
-}
+  id              String            @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  email           String            @unique
+  password        String
+  name            String?
+  role            String            @default("user")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  permissions     AdminPermission[]
+  groupUpdateLogs GroupUpdateLog[]
 
-// -----------------------------------------------------------------------------
-// CONTENT TYPES
-// -----------------------------------------------------------------------------
+  @@map("users")
+}
 
 model Post {
-  id                 String    @id @default(uuid())
-  title              String
-  slug               String    @unique
-  content            String?   @db.Text
-  excerpt            String?   @db.Text
-  type               String    // e.g., 'news', 'announcement', 'competition', 'parents_board'
-  status             String    @default("draft") // 'draft', 'published', 'archived'
-  published          Boolean   @default(false)
-  imageUrl           String?   
-  
-  // Calendar / Event specific
-  addToCalendar      Boolean   @default(false)
-  calendarDate       DateTime?
-  calendarEndDate    DateTime?
-  
-  // Competition specific
-  competitionStatus  String?
-  competitionStart   DateTime?
-  competitionEnd     DateTime?
-  
-  // Categories/Tags
-  category           String?
-  
-  authorId           String?
-  author             User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  
-  publishedAt        DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id                   String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title                String
+  content              String?
+  excerpt              String?
+  type                 String?
+  status               String?
+  published            Boolean   @default(false)
+  slug                 String?   @unique
+  imageUrl             String?   @map("image_url")
+  addToCalendar        Boolean   @default(false) @map("add_to_calendar")
+  calendarDate         DateTime? @map("calendar_date")
+  calendarEndDate      DateTime? @map("calendar_end_date")
+  competitionStatus    String?   @map("competition_status")
+  competitionStartDate DateTime? @map("competition_start_date")
+  competitionEndDate   DateTime? @map("competition_end_date")
+  groupCategory        String?   @map("group_category")
+  userId               String?   @map("user_id")
+  publishedAt          DateTime? @map("published_at")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime? @updatedAt @map("updated_at")
 
-  @@index([type, status])
-  @@index([slug])
+  @@index([type])
+  @@index([status])
+  @@index([calendarDate])
+  @@map("posts")
 }
 
-// -----------------------------------------------------------------------------
-// SCHOOL STRUCTURE
-// -----------------------------------------------------------------------------
+model Group {
+  id               String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name             String
+  slug             String           @unique
+  password         String?
+  teacherName      String?          @map("teacher_name")
+  teacherPhoto     String?          @map("teacher_photo")
+  mealPlanUrl      String?          @map("meal_plan_url")
+  ageGroup         String?          @map("age_group")
+  hours            String?
+  numberOfChildren String?          @map("number_of_children")
+  description      String?
+  schedule         Json?
+  documents        Json?
+  contactHours     String?          @map("contact_hours")
+  color            String?
+  email            String?
+  phone            String?
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime?        @updatedAt @map("updated_at")
+  updateLogs       GroupUpdateLog[]
 
-model ClassGroup {
-  id                 String    @id @default(uuid())
-  name               String    // e.g., '1A', '2B'
-  slug               String    @unique
-  description        String?   @db.Text
-  
-  teacherName        String?   // Head teacher (wychowawca)
-  teacherPhotoUrl    String?
-  roomNumber         String?
-  contactHours       String?   @db.Text // Konsultacje dla rodziców
-  
-  scheduleUrl        String?   // Plan lekcji (URL to PDF/Image)
-  
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  @@map("groups")
 }
-
-model Staff {
-  id                 String    @id @default(uuid())
-  firstName          String
-  lastName           String
-  role               String    // np. "Dyrektor", "Wicedyrektor", "Nauczyciel"
-  subjects           String?   // np. "Matematyka, Fizyka"
-  photoUrl           String?
-  description        String?   @db.Text
-  contactEmail       String?
-  order              Int       @default(0) // Do sortowania na stronie 'Kadra'
-  
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-}
-
-model MealPlan {
-  id                 String    @id @default(uuid())
-  weekStart          DateTime
-  weekEnd            DateTime
-  pdfUrl             String?
-  imageUrl           String?
-  isCurrent          Boolean   @default(false)
-  
-  uploadedById       String?
-  
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
-}
-
-// -----------------------------------------------------------------------------
-// MEDIA & GALLERIES
-// -----------------------------------------------------------------------------
 
 model Gallery {
-  id                 String    @id @default(uuid())
-  title              String
-  slug               String    @unique
-  description        String?   @db.Text
-  category           String?   // np. 'events', 'trips', 'school_life'
-  coverImageUrl      String?
-  status             String    @default("draft") // 'draft', 'published'
-  
-  authorId           String?
-  author             User?     @relation(fields: [authorId], references: [id], onDelete: SetNull)
-  
-  images             GalleryImage[]
-  
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id            String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title         String
+  description   String?
+  category      String?
+  coverImageUrl String?               @map("cover_image_url")
+  status        String?
+  slug          String                @unique
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime?             @updatedAt @map("updated_at")
+  createdBy     String?               @map("created_by")
+  images        GalleryImage[]
+  categories    GalleryCategoryLink[]
+
+  @@index([slug])
+  @@map("galleries")
+}
+
+model GalleryCategory {
+  id           String                @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name         String
+  slug         String                @unique
+  visible      Boolean               @default(true)
+  displayOrder Int                   @default(0) @map("display_order")
+  createdAt    DateTime              @default(now()) @map("created_at")
+  galleries    GalleryCategoryLink[]
+
+  @@map("gallery_categories")
+}
+
+model GalleryCategoryLink {
+  galleryId    String          @map("gallery_id") @db.Uuid
+  categorySlug String          @map("category_slug")
+  gallery      Gallery         @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+  category     GalleryCategory @relation(fields: [categorySlug], references: [slug], onDelete: Cascade)
+
+  @@id([galleryId, categorySlug])
+  @@map("gallery_category_links")
 }
 
 model GalleryImage {
-  id                 String    @id @default(uuid())
-  imageUrl           String
-  title              String?
-  sortOrder          Int       @default(0)
-  
-  galleryId          String
-  gallery            Gallery   @relation(fields: [galleryId], references: [id], onDelete: Cascade)
-  
-  createdAt          DateTime  @default(now())
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  galleryId   String   @map("gallery_id") @db.Uuid
+  imageUrl    String   @map("image_url")
+  title       String?
+  caption     String?
+  sortOrder   Int?     @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  gallery     Gallery  @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@map("gallery_images")
+}
+
+model MealPlan {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  weekStart  DateTime @map("week_start")
+  weekEnd    DateTime @map("week_end")
+  pdfUrl     String?  @map("pdf_url")
+  imageUrl   String?  @map("image_url")
+  uploadedBy String?  @map("uploaded_by")
+  isCurrent  Boolean  @default(false) @map("is_current")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([isCurrent])
+  @@map("meal_plans")
 }
 
 model Media {
-  id                 String    @id @default(uuid())
-  fileName           String
-  fileUrl            String
-  fileType           String    // np. 'application/pdf', 'image/jpeg'
-  fileSize           Int?
-  
-  category           String?   // np. 'documents', 'bip', 'schedules'
-  subcategory        String?   // np. 'statut', 'wewnatrzszkolny_system_oceniania'
-  
-  uploadedById       String?
-  uploader           User?     @relation(fields: [uploadedById], references: [id], onDelete: SetNull)
-  
-  createdAt          DateTime  @default(now())
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  fileUrl     String   @map("file_url")
+  fileName    String   @map("file_name")
+  fileType    String   @map("file_type")
+  fileSize    String?  @map("file_size")
+  category    String?
+  subcategory String?
+  uploadedBy  String?  @map("uploaded_by")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("media")
+}
+
+model RadaRodzicowPost {
+  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title     String
+  content   String?
+  date      DateTime? @default(now())
+  excerpt   String?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("rada_rodzicow_posts")
+}
+
+model RadaRodzicowDocument {
+  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title        String
+  url          String
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("rada_rodzicow_documents")
+}
+
+model RadaRodzicowInfo {
+  id              String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  chairperson     String   @default("")
+  viceChairperson String   @default("") @map("vice_chairperson")
+  treasurer       String   @default("")
+  secretary       String   @default("")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
+
+  @@map("rada_rodzicow_info")
+}
+
+model AdminPermission {
+  userId  String @map("user_id") @db.Uuid
+  section String
+  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, section])
+  @@map("admin_permissions")
+}
+
+model GroupUpdateLog {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  groupId   String   @map("group_id") @db.Uuid
+  updatedBy String?  @map("updated_by") @db.Uuid
+  action    String
+  details   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User?    @relation(fields: [updatedBy], references: [id])
+
+  @@index([groupId])
+  @@index([createdAt])
+  @@map("group_update_log")
 }

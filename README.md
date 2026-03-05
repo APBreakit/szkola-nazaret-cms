@@ -1,42 +1,35 @@
 # Katolicka Szkoła Podstawowa im. Świętej Rodziny z Nazaretu - CMS
 
-## Status Wdrożenia
-Aplikacja została wdrożona na serwerze Coolify!
-URL: [https://iwsow8kg0okgsg400gsog40g.breackly.cloud](https://iwsow8kg0okgsg400gsog40g.breackly.cloud)
+System zarządzania treścią (CMS) dla Katolickiej Szkoły Podstawowej im. Świętej Rodziny w Gdyni.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Technologie
 
-## Getting Started
+- **Frontend**: Next.js 15 (App Router), React 19, Tailwind CSS v4
+- **Backend**: Next.js Server Actions, PostgreSQL (Supabase)
+- **ORM**: Prisma 7
+- **UI**: Shadcn UI, Radix UI, Framer Motion
+- **Deployment**: Coolify (Docker Standalone)
 
-First, run the development server:
+## Struktura Projektu
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- `src/app`: Główne ścieżki i strony aplikacji (v0 reference design)
+- `src/components`: Reużywalne komponenty UI
+- `src/lib`: Logika biznesowa, autoryzacja, baza danych (Prisma shim)
+- `prisma/`: Definicja schematu bazy danych
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Wdrażanie (Coolify)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Aplikacja jest automatycznie wdrażana przez Coolify z repozytorium GitHub.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**URL**: [https://szkola.breackly.cloud](https://szkola.breackly.cloud)
 
-## Learn More
+**Główne Secje:**
+- `/admin`: Panel administracyjny
+- `/aktualnosci`: Aktualności i wydarzenia
+- `/ogloszenia`: Ważne komunikaty
+- `/grupy`: Zarządzanie grupami/klasami
+- `/jadlospis`: Centralny jadłospis
 
-To learn more about Next.js, take a look at the following resources:
+## Autorzy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Projekt oparty na referencyjnym systemie CMS od APBreakit, dostosowany dla potrzeb Katolickiej Szkoły Podstawowej.

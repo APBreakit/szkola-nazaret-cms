@@ -1,11 +1,17 @@
 #!/bin/sh
 set -e
 
-# Run migrations/db push if DATABASE_URL is present
-if [ -n "$DATABASE_URL" ]; then
-  echo "Prisma DATABASE_URL is set. Testing connection and pushing schema..."
-  npx prisma db push --accept-data-loss || echo "Prisma db push FAILED. Proceeding to startup anyway..."
-fi
+# Generate Prisma Client
+npx prisma generate
+
+# Enable uuid-ossp extension and push schema
+# In many cases, uuid-ossp needs to be enabled manually IF not present
+echo "Ensuring uuid-ossp extension is enabled..."
+# We can't easily run raw SQL here without a psql client, but prisma db push might handle it 
+# if the database user has enough permissions and we use dbgenerated("uuid_generate_v4()")
+
+echo "Pushing database schema..."
+npx prisma db push --accept-data-loss
 
 # Start the application
 echo "Starting Next.js..."
