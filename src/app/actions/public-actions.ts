@@ -156,7 +156,7 @@ export const getPublicGalleryBySlug = cache(async function getPublicGalleryBySlu
     `
     const gallery = rows[0] as any
     if (!gallery) return null
-    
+
     const images = await sql`
       SELECT * FROM gallery_images WHERE gallery_id = ${gallery.id} ORDER BY sort_order ASC, created_at ASC
     `
@@ -256,7 +256,7 @@ export const getGroupDetails = cache(async function getGroupDetails(slug: string
       )
       ORDER BY g.created_at DESC
     `
-    
+
     return { group, galleries }
   } catch (error) {
     console.error(`Error fetching group details ${slug}:`, error)
@@ -271,7 +271,25 @@ export async function getPublicPostBySlug(type: string, slug: string) {
       WHERE status = 'published' AND type = ${type} AND slug = ${slug}
       LIMIT 1
     `
-    return posts[0] || null
+    const post = posts[0] || null
+
+    if (post) {
+      const attachments = await sql`
+        SELECT * FROM post_attachments 
+        WHERE post_id = ${post.id} 
+        ORDER BY created_at ASC
+      `
+      const galleryImages = await sql`
+        SELECT * FROM post_gallery_images 
+        WHERE post_id = ${post.id} 
+        ORDER BY sort_order ASC, created_at ASC
+      `
+
+      post.attachments = attachments || []
+      post.gallery_images = galleryImages || []
+    }
+
+    return post
   } catch (error) {
     console.error('Error fetching post by slug:', error)
     return null

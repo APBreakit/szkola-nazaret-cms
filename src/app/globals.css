@@ -1,6 +1,105 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 
+/* Post Content & TipTap Styles */
+.prose {
+  color: var(--foreground);
+  line-height: 1.6;
+  font-size: 1.125rem;
+}
+
+.prose p {
+  margin-bottom: 1.25em;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--foreground);
+  font-weight: 700;
+  margin-top: 2em;
+  margin-bottom: 1em;
+  line-height: 1.2;
+}
+
+.prose h1 {
+  font-size: 2.25em;
+}
+
+.prose h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.3em;
+}
+
+.prose h3 {
+  font-size: 1.25em;
+}
+
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.625em;
+  margin-bottom: 1.25em;
+}
+
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.625em;
+  margin-bottom: 1.25em;
+}
+
+.prose li {
+  margin-bottom: 0.5em;
+}
+
+.prose blockquote {
+  font-style: italic;
+  border-left: 4px solid var(--primary);
+  padding-left: 1em;
+  margin: 1.5em 0;
+  color: var(--muted-foreground);
+}
+
+.prose img {
+  border-radius: 0.75rem;
+  margin: 2em 0;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.prose a {
+  color: var(--primary);
+  text-decoration: underline;
+  font-weight: 500;
+}
+
+.prose strong {
+  font-weight: 700;
+}
+
+.prose hr {
+  margin: 3em 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+/* TipTap Editor Specifics */
+.tiptap {
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--muted-foreground);
+  pointer-events: none;
+  height: 0;
+}
+
+.tiptap img.ProseMirror-selectednode {
+  outline: 3px solid var(--primary);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {
@@ -12,19 +111,25 @@
   --kg-white: #fcfaf8;
 
   /* Semantic color tokens mapped to kindergarten brand */
-  --background: oklch(0.99 0.005 85); /* Light warm background */
-  --foreground: oklch(0.27 0.018 55); /* Dark brown text */
-  --card: oklch(1 0 0); /* Pure white for cards */
+  --background: oklch(0.99 0.005 85);
+  /* Light warm background */
+  --foreground: oklch(0.27 0.018 55);
+  /* Dark brown text */
+  --card: oklch(1 0 0);
+  /* Pure white for cards */
   --card-foreground: oklch(0.27 0.018 55);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.27 0.018 55);
-  --primary: oklch(0.48 0.11 245); /* Kindergarten blue */
+  --primary: oklch(0.48 0.11 245);
+  /* Kindergarten blue */
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.71 0.12 215); /* Light blue */
+  --secondary: oklch(0.71 0.12 215);
+  /* Light blue */
   --secondary-foreground: oklch(0.27 0.018 55);
   --muted: oklch(0.96 0.01 85);
   --muted-foreground: oklch(0.5 0.02 55);
-  --accent: oklch(0.8 0.15 95); /* Yellow accent */
+  --accent: oklch(0.8 0.15 95);
+  /* Yellow accent */
   --accent-foreground: oklch(0.27 0.018 55);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
@@ -127,6 +232,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   /* Using semantic color tokens instead of hardcoded hex values */
   body {
     @apply bg-background text-foreground;
@@ -215,6 +321,7 @@
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -225,16 +332,19 @@
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
   }
 
   @keyframes float {
+
     0%,
     100% {
       transform: translateY(0px);
     }
+
     50% {
       transform: translateY(-10px);
     }
@@ -245,6 +355,7 @@
       opacity: 0;
       transform: scale(0.9);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -256,6 +367,7 @@
       opacity: 0;
       transform: translateX(-30px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -267,6 +379,7 @@
       opacity: 0;
       transform: translateX(30px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -274,20 +387,24 @@
   }
 
   @keyframes pulse-soft {
+
     0%,
     100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.6;
     }
   }
 
   @keyframes gradient-shift {
+
     0%,
     100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }
@@ -298,6 +415,7 @@
     0% {
       transform: translateX(0);
     }
+
     100% {
       transform: translateX(-50%);
     }
@@ -380,11 +498,13 @@
   }
 
   @keyframes pulse-subtle {
+
     0%,
     100% {
       transform: scale(1);
       box-shadow: 0 0 0 0 rgba(242, 201, 31, 0.4);
     }
+
     50% {
       transform: scale(1.02);
       box-shadow: 0 0 0 4px rgba(242, 201, 31, 0);

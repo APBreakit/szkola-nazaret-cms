@@ -19,6 +19,27 @@ export interface Post {
   published_at: Date | null
   created_at: Date
   updated_at: Date | null
+  attachments?: PostAttachment[]
+  gallery_images?: PostGalleryImage[]
+  images?: string[] | null
+}
+
+export interface PostAttachment {
+  id: string
+  post_id: string
+  file_url: string
+  file_name: string
+  file_size: string | null
+  created_at: Date
+}
+
+export interface PostGalleryImage {
+  id: string
+  post_id: string
+  image_url: string
+  title: string | null
+  sort_order: number | null
+  created_at: Date
 }
 
 export interface Group {

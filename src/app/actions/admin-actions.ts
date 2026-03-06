@@ -54,13 +54,31 @@ export async function getPost(id: string) {
   const posts = await sql`
     SELECT * FROM posts WHERE id = ${id} LIMIT 1
   `
-  return posts[0]
+  const post = posts[0]
+
+  if (!post) {
+    return null
+  }
+
+  const attachments = await sql`
+    SELECT * FROM post_attachments WHERE post_id = ${id} ORDER BY created_at ASC
+  `
+
+  const galleryImages = await sql`
+    SELECT * FROM post_gallery_images WHERE post_id = ${id} ORDER BY sort_order ASC, created_at ASC
+  `
+
+  return {
+    ...post,
+    attachments,
+    gallery_images: galleryImages, // snake_case like db or as needed by frontend
+  }
 }
 
 export async function createPost(data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'posts'))) {
@@ -95,21 +113,41 @@ export async function createPost(data: any) {
     `
     const finalSlug = existing[0]?.exists ? `${slug}-${Date.now().toString(36).slice(-4)}` : slug
 
-    await sql`SET app.user_role = 'admin'`
-    await sql`
+    const postRes = await sql`
       INSERT INTO posts (
         title, content, excerpt, type, status, published, slug, image_url,
         add_to_calendar, calendar_date, calendar_end_date,
         competition_status, competition_start_date, competition_end_date,
-        group_category, user_id, created_at, updated_at
+        group_category, user_id, images, created_at, updated_at
       ) VALUES (
         ${data.title}, ${data.content}, ${data.excerpt}, ${data.type}, ${data.status}, 
         ${data.published}, ${finalSlug}, ${data.image_url},
         ${data.add_to_calendar}, ${calendarDate}, ${calendarEndDate},
         ${data.competition_status}, ${competitionStart}, ${competitionEnd},
-        ${data.group_category}, ${data.user_id}, NOW(), NOW()
-      )
+        ${data.group_category}, ${data.user_id}, ${JSON.stringify(data.images || [])}, NOW(), NOW()
+      ) RETURNING id
     `
+    const postId = (postRes as any)[0]?.id
+
+    if (postId && data.attachments && Array.isArray(data.attachments)) {
+      for (const att of data.attachments) {
+        await sql`
+          INSERT INTO post_attachments (post_id, file_url, file_name, file_size, created_at)
+          VALUES (${postId}, ${att.url}, ${att.name}, ${att.size}, NOW())
+        `
+      }
+    }
+
+    if (postId && data.gallery_images && Array.isArray(data.gallery_images)) {
+      for (let i = 0; i < data.gallery_images.length; i++) {
+        const img = data.gallery_images[i]
+        await sql`
+          INSERT INTO post_gallery_images (post_id, image_url, title, sort_order, created_at)
+          VALUES (${postId}, ${img.url}, ${img.title}, ${i}, NOW())
+        `
+      }
+    }
+
     revalidatePath("/admin/posts")
     return { success: true }
   } catch (error) {
@@ -121,7 +159,7 @@ export async function createPost(data: any) {
 export async function updatePost(id: string, data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'posts'))) {
@@ -179,10 +217,33 @@ export async function updatePost(id: string, data: any) {
         competition_start_date = ${competitionStart},
         competition_end_date = ${competitionEnd},
         group_category = ${data.group_category},
+        images = ${JSON.stringify(data.images || [])},
         published_at = CASE WHEN ${data.status} = 'published' AND published_at IS NULL THEN NOW() ELSE published_at END,
         updated_at = NOW()
       WHERE id = ${id}
     `
+
+    await sql`DELETE FROM post_attachments WHERE post_id = ${id}`
+    if (data.attachments && Array.isArray(data.attachments)) {
+      for (const att of data.attachments) {
+        await sql`
+          INSERT INTO post_attachments (post_id, file_url, file_name, file_size, created_at)
+          VALUES (${id}, ${att.url}, ${att.name}, ${att.size}, NOW())
+        `
+      }
+    }
+
+    await sql`DELETE FROM post_gallery_images WHERE post_id = ${id}`
+    if (data.gallery_images && Array.isArray(data.gallery_images)) {
+      for (let i = 0; i < data.gallery_images.length; i++) {
+        const img = data.gallery_images[i]
+        await sql`
+          INSERT INTO post_gallery_images (post_id, image_url, title, sort_order, created_at)
+          VALUES (${id}, ${img.url}, ${img.title}, ${i}, NOW())
+        `
+      }
+    }
+
     revalidatePath("/admin/posts")
     return { success: true }
   } catch (error) {
@@ -193,7 +254,7 @@ export async function updatePost(id: string, data: any) {
 export async function deletePost(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'posts'))) {
@@ -241,7 +302,7 @@ export async function getGroup(slug: string) {
 export async function createGroup(data: { name: string; slug?: string; color?: string; password?: string }) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'groups'))) {
@@ -274,7 +335,7 @@ export async function createGroup(data: { name: string; slug?: string; color?: s
 export async function deleteGroup(slug: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'groups'))) {
@@ -291,7 +352,7 @@ export async function deleteGroup(slug: string) {
 export async function updateGroup(slug: string, data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'groups'))) {
@@ -347,7 +408,7 @@ export async function updateGroup(slug: string, data: any) {
 export async function addRRDocument(name: string, url: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     await sql`SET app.user_role = 'admin'`
@@ -366,7 +427,7 @@ export async function addRRDocument(name: string, url: string) {
 export async function deleteRRDocument(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     await sql`SET app.user_role = 'admin'`
@@ -408,7 +469,7 @@ export async function getGallery(id: string) {
 export async function createGallery(data: any, images: any[]) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'galleries'))) {
@@ -476,7 +537,7 @@ export async function createGallery(data: any, images: any[]) {
 export async function updateGallery(id: string, data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'galleries'))) {
@@ -521,7 +582,7 @@ export async function updateGallery(id: string, data: any) {
 export async function addGalleryImage(galleryId: string, imageUrl: string, caption: string | null, sortOrder: number) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'galleries'))) {
@@ -543,7 +604,7 @@ export async function addGalleryImage(galleryId: string, imageUrl: string, capti
 export async function deleteGalleryImage(id: string, galleryId: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'galleries'))) {
@@ -561,7 +622,7 @@ export async function deleteGalleryImage(id: string, galleryId: string) {
 export async function moveGalleryImage(imageId: string, currentOrder: number, targetOrder: number, galleryId: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'galleries'))) {
@@ -586,7 +647,7 @@ export async function moveGalleryImage(imageId: string, currentOrder: number, ta
 export async function deleteGallery(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'galleries'))) {
@@ -618,7 +679,7 @@ export async function getGalleryCategories() {
 export async function createGalleryCategory(data: { name: string; slug?: string; visible?: boolean; display_order?: number }) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) return { success: false, error: 'Unauthorized' }
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) return { success: false, error: 'Unauthorized' }
     if (!(await hasPermission(session.user.id, 'galleries'))) return { success: false, error: 'Forbidden' }
     const baseSlug = (data.slug && String(data.slug).trim()) || slugify(data.name)
     const exists = await sql`SELECT 1 FROM gallery_categories WHERE slug = ${baseSlug} LIMIT 1`
@@ -641,7 +702,7 @@ export async function createGalleryCategory(data: { name: string; slug?: string;
 export async function updateGalleryCategory(id: string, data: { name?: string; visible?: boolean; display_order?: number }) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) return { success: false, error: 'Unauthorized' }
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) return { success: false, error: 'Unauthorized' }
     if (!(await hasPermission(session.user.id, 'galleries'))) return { success: false, error: 'Forbidden' }
     await sql`SET app.user_role = 'admin'`
     await sql`
@@ -664,7 +725,7 @@ export async function updateGalleryCategory(id: string, data: { name?: string; v
 export async function deleteGalleryCategory(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) return { success: false, error: 'Unauthorized' }
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) return { success: false, error: 'Unauthorized' }
     if (!(await hasPermission(session.user.id, 'galleries'))) return { success: false, error: 'Forbidden' }
     await sql`SET app.user_role = 'admin'`
     await sql`DELETE FROM gallery_categories WHERE id = ${id}`
@@ -688,7 +749,7 @@ export async function getMealPlans() {
 export async function createMealPlan(data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'meal_plans'))) {
@@ -734,7 +795,7 @@ export async function getLatestMealPlan() {
 export async function deleteMealPlan(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'meal_plans'))) {
@@ -752,7 +813,7 @@ export async function deleteMealPlan(id: string) {
 export async function setCurrentMealPlan(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: 'Unauthorized' }
     }
     if (!(await hasPermission(session.user.id, 'meal_plans'))) {
@@ -786,7 +847,7 @@ export async function getRadaRodzicowData() {
 export async function createRadaRodzicowDocument(data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'rada_rodzicow'))) {
@@ -808,7 +869,7 @@ export async function createRadaRodzicowDocument(data: any) {
 export async function deleteRadaRodzicowDocument(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'rada_rodzicow'))) {
@@ -834,7 +895,7 @@ export async function getMediaFiles() {
 export async function createMediaFile(data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'media'))) {
@@ -870,7 +931,7 @@ export async function createMediaFile(data: any) {
 export async function deleteMedia(id: string) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'media'))) {
@@ -888,7 +949,7 @@ export async function deleteMedia(id: string) {
 export async function createMedia(data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     await sql`SET app.user_role = 'admin'`
@@ -1067,7 +1128,7 @@ export async function setAdminPermissions(userId: string, sections: string[]) {
 export async function getRRInfo() {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return null
     }
     const rows = await sql`
@@ -1088,17 +1149,17 @@ export async function getRRInfo() {
 export async function updateRRInfo(data: any) {
   try {
     const session = await getSession()
-    if (!session || !['admin','superadmin'].includes(session.user.role)) {
+    if (!session || !['admin', 'superadmin'].includes(session.user.role)) {
       return { success: false, error: "Unauthorized" }
     }
     if (!(await hasPermission(session.user.id, 'rada-rodzicow'))) {
       return { success: false, error: "Forbidden" }
     }
     await sql`SET app.user_role = 'admin'`
-    
+
     // Check if record exists
     const exists = await sql`SELECT 1 FROM rada_rodzicow_info LIMIT 1`
-    
+
     if (exists.length > 0) {
       await sql`
         UPDATE rada_rodzicow_info SET

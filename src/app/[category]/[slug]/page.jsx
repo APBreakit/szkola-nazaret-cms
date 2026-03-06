@@ -91,7 +91,7 @@ export default async function PostDetailPage({ params }) {
         const res = await fetch(a.url, { method: "HEAD" })
         const len = res.headers.get("content-length")
         size = len ? await formatBytes(Number(len)) : null
-      } catch {}
+      } catch { }
       const ext = (a.name.split(".").pop() || "").toLowerCase()
       const isImage = ["png", "jpg", "jpeg", "webp"].includes(ext)
       const isPdf = ext === "pdf"
@@ -152,32 +152,86 @@ export default async function PostDetailPage({ params }) {
           </div>
         )}
 
-        <article className="prose prose-neutral max-w-none">
-          {post?.content || post?.excerpt}
-        </article>
+        <article
+          className="prose prose-neutral max-w-none mb-12"
+          dangerouslySetInnerHTML={{ __html: post?.content || post?.excerpt || "" }}
+        />
 
-        {attachmentsWithMeta.length > 0 && (
-          <div className="mt-8">
-            <h2 className="text-lg font-semibold">Załączniki</h2>
-            <ul className="mt-2 space-y-2">
-              {attachmentsWithMeta.map((a, i) => (
-                <li key={i}>
-                  <a href={a.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 text-primary hover:underline">
-                    {a.isImage ? (
-                      <div className="relative w-16 h-12 rounded-md overflow-hidden border">
-                        <Image src={a.url} alt={a.name} fill className="object-cover" />
-                      </div>
-                    ) : a.isPdf ? (
-                      <FileText className="w-4 h-4" />
-                    ) : (
-                      <ImageIcon className="w-4 h-4" />
-                    )}
-                    <span>{a.name}</span>
-                    {a.size && <span className="text-xs text-muted-foreground">({a.size})</span>}
-                  </a>
-                </li>
+        {post?.images && Array.isArray(post.images) && post.images.length > 0 && (
+          <div className="mt-12 border-t pt-8">
+            <h2 className="text-2xl font-serif font-bold mb-6 flex items-center gap-2">
+              <ImageIcon className="w-6 h-6 text-blue-500" />
+              Galeria
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {post.images.map((img, i) => (
+                <div key={i} className="relative aspect-video rounded-2xl overflow-hidden border border-border shadow-sm group">
+                  <Image
+                    src={img}
+                    alt=""
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                </div>
               ))}
-            </ul>
+            </div>
+          </div>
+        )}
+
+        {post?.attachments && post.attachments.length > 0 && (
+          <div className="mt-8 border-t pt-8">
+            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+              <FileText className="w-5 h-5 text-blue-500" />
+              Załączniki
+            </h2>
+            <div className="grid gap-3">
+              {post.attachments.map((a, i) => (
+                <a
+                  key={i}
+                  href={a.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-100 hover:bg-gray-100 transition-colors group"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                      <FileText className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">{a.file_name}</div>
+                      {a.file_size && <div className="text-xs text-muted-foreground">{a.file_size}</div>}
+                    </div>
+                  </div>
+                  <div className="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">POBIERZ</div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {post?.gallery_images && post.gallery_images.length > 0 && (
+          <div className="mt-12 border-t pt-8">
+            <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-blue-500" />
+              Galeria zdjęć
+            </h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {post.gallery_images.map((img, i) => (
+                <div key={i} className="relative aspect-square rounded-xl overflow-hidden border border-gray-200 group cursor-pointer">
+                  <Image
+                    src={img.image_url}
+                    alt={img.title || `Zdjęcie ${i + 1}`}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  {img.title && (
+                    <div className="absolute inset-x-0 bottom-0 bg-black/60 p-2 text-white text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                      {img.title}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
 

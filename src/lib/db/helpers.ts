@@ -28,7 +28,17 @@ export async function getPosts(filters?: { type?: string; status?: string; limit
 
 export async function getPostById(id: string) {
   const result = await sql.query("SELECT * FROM posts WHERE id = $1", [id])
-  return result[0] as Post | undefined
+  const post = result[0] as Post | undefined
+
+  if (post) {
+    const attachments = await sql.query("SELECT * FROM post_attachments WHERE post_id = $1 ORDER BY created_at ASC", [id])
+    const galleryImages = await sql.query("SELECT * FROM post_gallery_images WHERE post_id = $1 ORDER BY sort_order ASC, created_at ASC", [id])
+
+    post.attachments = attachments as any[]
+    post.gallery_images = galleryImages as any[]
+  }
+
+  return post
 }
 
 export async function createPost(data: Partial<Post>) {
@@ -127,10 +137,10 @@ export async function getGalleryById(id: string) {
 
 export async function createGallery(data: Partial<Gallery>) {
   const result = await sql.query(
-    `INSERT INTO galleries (title, slug, description, cover_image, status, category)
+    `INSERT INTO galleries (title, slug, description, cover_image_url, status, category)
      VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING *`,
-    [data.title, data.slug, data.description, data.cover_image, data.status || "draft", data.category],
+    [data.title, data.slug, data.description, data.cover_image_url, data.status || "draft", data.category],
   )
   return result[0] as Gallery
 }
@@ -141,13 +151,13 @@ export async function updateGallery(id: string, data: Partial<Gallery>) {
       title = COALESCE($2, title),
       slug = COALESCE($3, slug),
       description = COALESCE($4, description),
-      cover_image = COALESCE($5, cover_image),
+      cover_image_url = COALESCE($5, cover_image_url),
       status = COALESCE($6, status),
       category = COALESCE($7, category),
       updated_at = NOW()
      WHERE id = $1
      RETURNING *`,
-    [id, data.title, data.slug, data.description, data.cover_image, data.status, data.category],
+    [id, data.title, data.slug, data.description, data.cover_image_url, data.status, data.category],
   )
   return result[0] as Gallery
 }
@@ -165,10 +175,10 @@ export async function getGalleryImages(galleryId: string) {
 
 export async function createGalleryImage(data: Partial<GalleryImage>) {
   const result = await sql.query(
-    `INSERT INTO gallery_images (gallery_id, image_url, title, description, sort_order)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO gallery_images (gallery_id, image_url, title, sort_order)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [data.gallery_id, data.image_url, data.title, data.description, data.sort_order || 0],
+    [data.gallery_id, data.image_url, data.title, data.sort_order || 0],
   )
   return result[0] as GalleryImage
 }
@@ -177,11 +187,10 @@ export async function updateGalleryImage(id: string, data: Partial<GalleryImage>
   const result = await sql.query(
     `UPDATE gallery_images SET
       title = COALESCE($2, title),
-      description = COALESCE($3, description),
-      sort_order = COALESCE($4, sort_order)
+      sort_order = COALESCE($3, sort_order)
      WHERE id = $1
      RETURNING *`,
-    [id, data.title, data.description, data.sort_order],
+    [id, data.title, data.sort_order],
   )
   return result[0] as GalleryImage
 }
@@ -212,10 +221,10 @@ export async function getMedia(filters?: { type?: string; limit?: number }) {
 
 export async function createMedia(data: Partial<Media>) {
   const result = await sql.query(
-    `INSERT INTO media (url, type, title, alt_text, caption, file_size)
-     VALUES ($1, $2, $3, $4, $5, $6)
+    `INSERT INTO media (file_url, file_type, file_name, file_size)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [data.url, data.type, data.title, data.alt_text, data.caption, data.file_size],
+    [data.file_url, data.file_type, data.file_name, data.file_size],
   )
   return result[0] as Media
 }
@@ -239,23 +248,21 @@ export async function updateGroup(slug: string, data: Partial<Group>) {
     `UPDATE groups SET
       name = COALESCE($2, name),
       color = COALESCE($3, color),
-      age_range = COALESCE($4, age_range),
+      age_group = COALESCE($4, age_group),
       teacher_name = COALESCE($5, teacher_name),
-      teacher_bio = COALESCE($6, teacher_bio),
-      teacher_image = COALESCE($7, teacher_image),
-      password = COALESCE($8, password),
-      schedule = COALESCE($9, schedule),
-      description = COALESCE($10, description)
+      teacher_photo = COALESCE($6, teacher_photo),
+      password = COALESCE($7, password),
+      schedule = COALESCE($8, schedule),
+      description = COALESCE($9, description)
      WHERE slug = $1
      RETURNING *`,
     [
       slug,
       data.name,
       data.color,
-      data.age_range,
+      data.age_group,
       data.teacher_name,
-      data.teacher_bio,
-      data.teacher_image,
+      data.teacher_photo,
       data.password,
       data.schedule ? JSON.stringify(data.schedule) : undefined,
       data.description,
