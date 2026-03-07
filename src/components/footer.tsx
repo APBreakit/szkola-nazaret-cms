@@ -41,70 +41,18 @@ export function Footer() {
                   href="/"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
-                  <Info className="w-4 h-4" />Strona Główna
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/aktualnosci"
-                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
-                >
-                  <Newspaper className="w-4 h-4" />
-                  Aktualności
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/nauczyciele"
-                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
-                >
-                  <Users className="w-4 h-4" />
-                  Nauczyciele
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/galeria"
-                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
-                >
-                  <ImageIcon className="w-4 h-4" />
-                  Galeria
+                  <Home className="w-4 h-4" />Strona Główna
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Documents */}
+          {/* Documents Placeholder or Quick Info */}
           <div className="space-y-6">
             <h4 className="font-semibold text-foreground text-lg">Ważne</h4>
             <ul className="space-y-4">
-              <li>
-                <Link
-                  href="/rekrutacja"
-                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 font-medium"
-                >
-                  <GraduationCap className="w-4 h-4" />
-                  Rekrutacja
-                </Link>
-              </li>
-              <li></li>
-              <li>
-                <Link
-                  href="/rada-rodzicow"
-                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 font-medium"
-                >
-                  <Users className="w-4 h-4" />
-                  Rada Rodziców
-                </Link>
-              </li>
-              <li className="space-y-2">
-                <Link
-                  href="/bip"
-                  className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2 font-medium"
-                >
-                  <FileText className="w-4 h-4" />
-                  BIP
-                </Link>
+              <li className="text-muted-foreground text-sm leading-relaxed">
+                Zajrzyj do nas, aby poznać wartości, którymi kierujemy się w edukacji naszych uczniów.
               </li>
             </ul>
           </div>
@@ -147,30 +95,11 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 pt-2.5">
           <p className="text-muted-foreground text-sm">
-            © 2026 Katolicka Szkoła Podstawowa im. Świętej Rodziny. Wszelkie prawa zastrzeżone.
+            © 2026 Katolicka Szkoła Podstawowa im. Świętej Rodziny.
           </p>
           <div className="flex gap-6 text-sm">
-            <Link
-              href="/polityka-prywatnosci"
-              className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-            >
-              <Shield className="w-3.5 h-3.5" />
-              Polityka Prywatności
-            </Link>
-            <Link
-              href="/polityka-cookie"
-              className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-            >
-              <Cookie className="w-3.5 h-3.5" />
-              Polityka Cookie
-            </Link>
-            <Link
-              href="/klauzury-rodo"
-              className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1.5"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              Klauzury RODO
-            </Link>
+            {/* Keeping policy links as they are usually required or point to external/static docs */}
+            <span className="text-muted-foreground">Publiczna placówka oświatowa</span>
           </div>
         </div>
 
