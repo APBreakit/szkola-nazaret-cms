@@ -103,39 +103,38 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated to use kindergarten brand colors as semantic tokens */
+  /* Updated to use primary school brand colors as semantic tokens */
   --kg-brown: #443b32;
-  --kg-blue: #2f67ab;
-  --kg-light-blue: #6fc0e8;
-  --kg-yellow: #f2c91f;
+  --school-red: #901b3e;
+  /* Catholic School Red from Logo */
+  --school-blue: #5eb6e4;
+  /* Catholic School Blue from Logo */
+  --school-gold: #c39c43;
   --kg-white: #fcfaf8;
 
-  /* Semantic color tokens mapped to kindergarten brand */
+  /* Semantic color tokens mapped to school brand */
   --background: oklch(0.99 0.005 85);
-  /* Light warm background */
   --foreground: oklch(0.27 0.018 55);
-  /* Dark brown text */
   --card: oklch(1 0 0);
-  /* Pure white for cards */
   --card-foreground: oklch(0.27 0.018 55);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.27 0.018 55);
-  --primary: oklch(0.48 0.11 245);
-  /* Kindergarten blue */
+  --primary: oklch(0.4 0.18 5);
+  /* Burgundy Red */
   --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.71 0.12 215);
-  /* Light blue */
-  --secondary-foreground: oklch(0.27 0.018 55);
+  --secondary: oklch(0.72 0.12 245);
+  /* Light Blue */
+  --secondary-foreground: oklch(0.99 0 0);
   --muted: oklch(0.96 0.01 85);
   --muted-foreground: oklch(0.5 0.02 55);
   --accent: oklch(0.8 0.15 95);
-  /* Yellow accent */
+  /* Gold */
   --accent-foreground: oklch(0.27 0.018 55);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
   --border: oklch(0.92 0.01 85);
   --input: oklch(0.92 0.01 85);
-  --ring: oklch(0.48 0.11 245);
+  --ring: oklch(0.4 0.18 5);
   --radius: 1rem;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
@@ -289,21 +288,21 @@
     filter: grayscale(100%);
   }
 
-  /* Added gradient utilities for kindergarten brand */
+  /* Added gradient utilities for brand */
   .gradient-1 {
-    background: linear-gradient(135deg, #2f67ab, #6fc0e8);
+    background: linear-gradient(135deg, #901b3e, #b83358);
   }
 
   .gradient-2 {
-    background: linear-gradient(135deg, #443b32, #f2c91f);
+    background: linear-gradient(135deg, #5eb6e4, #3695c7);
   }
 
   .gradient-3 {
-    background: linear-gradient(135deg, #fcfaf8, #6fc0e8);
+    background: linear-gradient(135deg, #fcfaf8, #901b3e);
   }
 
   .gradient-4 {
-    background: linear-gradient(135deg, #2f67ab, #f2c91f);
+    background: linear-gradient(135deg, #901b3e, #5eb6e4);
   }
 
   /* Added scrollbar-hide utility for horizontal scroll containers */

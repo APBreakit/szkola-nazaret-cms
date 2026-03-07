@@ -18,7 +18,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-muted-foreground leading-relaxed">
-              Katolicka Szkoła Podstawowa publiczne im. Świętej Rodziny przy Parafii NMP w Gdyni
+              Katolicka Szkoła Podstawowa im. Świętej Rodziny przy Parafii NMP w Gdyni
             </p>
             <div className="flex gap-3">
               <a
@@ -38,10 +38,10 @@ export function Footer() {
             <ul className="space-y-4">
               <li>
                 <Link
-                  href="/o-nas"
+                  href="/"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
-                  <Info className="w-4 h-4" />O nas
+                  <Info className="w-4 h-4" />Strona Główna
                 </Link>
               </li>
               <li>
@@ -55,11 +55,11 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/grupy"
+                  href="/nauczyciele"
                   className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-2"
                 >
                   <Users className="w-4 h-4" />
-                  Grupy
+                  Nauczyciele
                 </Link>
               </li>
               <li>
@@ -116,28 +116,28 @@ export function Footer() {
               <li className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="text-muted-foreground text-sm space-y-1">
-                  <a href="tel:690471187" className="block hover:text-primary transition-colors">
-                    690 471 187
+                  <a href="tel:586221199" className="block hover:text-primary transition-colors">
+                    (58) 622 11 99
                   </a>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <div className="text-muted-foreground text-sm space-y-1">
-                  <a href="mailto:sekretariat@szkołanazaret.com" className="block hover:text-primary transition-colors">
-                    sekretariat@szkołanazaret.com
+                  <a href="mailto:sekretariat@kspgdynia.pl" className="block hover:text-primary transition-colors">
+                    sekretariat@kspgdynia.pl
                   </a>
                 </div>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <a
-                  href="https://maps.app.goo.gl/6Z9mCKKgDxNnzAkv8"
+                  href="https://maps.google.com/?q=Świętojańska+1,81-368+Gdynia"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground text-sm hover:text-primary transition-colors"
                 >
-                  ul. Armii Krajowej 26, 81-372 Gdynia
+                  ul. Świętojańska 1, 81-368 Gdynia
                 </a>
               </li>
             </ul>

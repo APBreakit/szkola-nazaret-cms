@@ -1,6 +1,6 @@
 "use client"
 
-import { Home, Newspaper, Users, Camera, Mail, ChevronDown, GraduationCap } from "lucide-react"
+import { Home, Newspaper, Camera, Mail, ChevronDown, GraduationCap, Building2, BookOpen, Laptop } from "lucide-react"
 import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
@@ -12,75 +12,86 @@ import {
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu"
 
-const groups = [
-  { name: "Grupa Czerwona", slug: "czerwona", color: "#ef4444" },
-  { name: "Grupa Lawendowa", slug: "lawendowa", color: "#a78bfa" },
-  { name: "Grupa Niebieska", slug: "niebieska", color: "#3b82f6" },
-  { name: "Grupa Pastelowa", slug: "pastelowa", color: "#fbbf24" },
-  { name: "Grupa Pomarańczowa", slug: "pomaranczowa", color: "#f97316" },
-  { name: "Grupa Turkusowa", slug: "turkusowa", color: "#06b6d4" },
-  { name: "Grupa Waniliowa", slug: "waniliowa", color: "#fef3c7" },
-  { name: "Grupa Zielona", slug: "zielona", color: "#22c55e" },
+const schoolLinks = [
+  { name: "Historia Szkoły", slug: "historia" },
+  { name: "Patron", slug: "patron" },
+  { name: "Nauczyciele", slug: "nauczyciele" },
+  { name: "Rada Rodziców", slug: "rada-rodzicow" },
+  { name: "Samorząd Uczniowski", slug: "samorzad" },
+]
+
+const parentLinks = [
+  { name: "Dokumenty szkolne", slug: "dokumenty" },
+  { name: "Biblioteka", slug: "biblioteka" },
+  { name: "Egzamin ósmoklasisty", slug: "egzamin" },
+  { name: "Stypendia i konkursy", slug: "stypendia" },
 ]
 
 export function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [groupsMenuOpen, setGroupsMenuOpen] = useState(false)
+  const [schoolMenuOpen, setSchoolMenuOpen] = useState(false)
+  const [parentMenuOpen, setParentMenuOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 bg-card/90 backdrop-blur-xl border-b border-primary/10 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-white/20 shadow-sm transition-all duration-300">
       <div className="container mx-auto px-6 py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center overflow-hidden">
-              <Image
-                src="/logoduze-2.jpg"
-                alt="Katolicka Szkoła Podstawowa Nazaret Logo"
-                width={48}
-                height={48}
-                className="object-contain"
-              />
+            <div className="hidden sm:flex w-14 h-14 rounded-full overflow-hidden items-center justify-center bg-white shadow-sm border border-border">
+              {/* Assuming there is a logo matching the red one from attachment. We will use a placeholder or local asset if missing. */}
+              <div className="text-primary font-bold text-2xl font-serif">KSP</div>
             </div>
             <div>
-              <div className="font-serif text-xl text-foreground font-bold">Katolicka Szkoła Podstawowa im. Świętej Rodziny</div>
-              <div className="text-xs text-primary">przy Parafii NMP w Gdyni</div>
+              <div className="font-serif text-lg sm:text-xl text-foreground font-bold tracking-tight leading-none mb-1">
+                Katolicka Szkoła Podstawowa
+              </div>
+              <div className="text-xs text-primary font-medium">im. Świętej Rodziny w Gdyni</div>
             </div>
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex items-center gap-3.5">
+          <div className="hidden lg:flex items-center gap-2">
             <Link
-              href="/o-nas"
-              className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-semibold"
+              href="/"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:text-primary transition-colors font-medium rounded-full hover:bg-muted"
             >
-              <Home className="w-4 h-4" />O nas
-            </Link>
-            <Link
-              href="/aktualnosci"
-              className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-semibold"
-            >
-              <Newspaper className="w-4 h-4" />
-              Aktualności
+              Start
             </Link>
 
             <NavigationMenu viewport={false}>
               <NavigationMenuList>
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-semibold bg-transparent">
-                    <Users className="w-4 h-4" />
-                    Grupy
+                  <NavigationMenuTrigger className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:text-primary transition-colors font-medium bg-transparent hover:bg-muted rounded-full">
+                    Szkoła
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="grid w-[400px] gap-3 p-4">
-                      {groups.map((group) => (
+                    <div className="grid w-[300px] gap-2 p-3 bg-card/90 backdrop-blur-xl border-white/20">
+                      {schoolLinks.map((link) => (
                         <Link
-                          key={group.slug}
-                          href={`/grupy/${group.slug}`}
-                          className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors group"
+                          key={link.slug}
+                          href={`/${link.slug}`}
+                          className="block p-3 text-sm rounded-xl hover:bg-primary/5 hover:text-primary transition-colors font-medium"
                         >
-                          <div className="w-4 h-4 rounded-full" style={{ backgroundColor: group.color }} />
-                          <span className="text-foreground group-hover:text-primary font-medium">{group.name}</span>
+                          {link.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:text-primary transition-colors font-medium bg-transparent hover:bg-muted rounded-full">
+                    Dla ucznia i rodzica
+                  </NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <div className="grid w-[300px] gap-2 p-3 bg-card/90 backdrop-blur-xl border-white/20">
+                      {parentLinks.map((link) => (
+                        <Link
+                          key={link.slug}
+                          href={`/${link.slug}`}
+                          className="block p-3 text-sm rounded-xl hover:bg-primary/5 hover:text-primary transition-colors font-medium"
+                        >
+                          {link.name}
                         </Link>
                       ))}
                     </div>
@@ -90,25 +101,31 @@ export function Navigation() {
             </NavigationMenu>
 
             <Link
-              href="/galeria"
-              className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-semibold"
+              href="/aktualnosci"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:text-primary transition-colors font-medium rounded-full hover:bg-muted"
             >
-              <Camera className="w-4 h-4" />
+              Aktualności
+            </Link>
+
+            <Link
+              href="/galeria"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:text-primary transition-colors font-medium rounded-full hover:bg-muted"
+            >
               Galeria
             </Link>
             <Link
-              href="/rekrutacja"
-              className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-semibold"
-            >
-              <GraduationCap className="w-4 h-4" />
-              Rekrutacja
-            </Link>
-            <Link
               href="/kontakt"
-              className="flex items-center gap-2 text-foreground hover:text-primary transition-colors font-semibold"
+              className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:text-primary transition-colors font-medium rounded-full hover:bg-muted"
             >
-              <Mail className="w-4 h-4" />
               Kontakt
+            </Link>
+          </div>
+
+          {/* Dziennik Action Button CTA Desktop */}
+          <div className="hidden lg:block ml-4">
+            <Link href="https://portal.librus.pl/rodzina" target="_blank" className="flex items-center gap-2 px-6 py-2.5 text-sm bg-secondary text-secondary-foreground font-semibold rounded-full hover:bg-secondary/90 transition-all hover:scale-105 shadow-sm">
+              <Laptop className="w-4 h-4" />
+              Dziennik e-Librus
             </Link>
           </div>
 
@@ -118,96 +135,68 @@ export function Navigation() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            <span
-              className={`w-6 h-0.5 bg-primary rounded-full transition-all duration-300 ${
-                mobileMenuOpen ? "rotate-45 translate-y-2" : ""
-              }`}
-            />
-            <span
-              className={`w-6 h-0.5 bg-primary rounded-full transition-all duration-300 ${
-                mobileMenuOpen ? "opacity-0" : ""
-              }`}
-            />
-            <span
-              className={`w-6 h-0.5 bg-primary rounded-full transition-all duration-300 ${
-                mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""
-              }`}
-            />
+            <span className={`w-6 h-0.5 bg-primary rounded-full transition-all duration-300 ${mobileMenuOpen ? "rotate-45 translate-y-2" : ""}`} />
+            <span className={`w-6 h-0.5 bg-primary rounded-full transition-all duration-300 ${mobileMenuOpen ? "opacity-0" : ""}`} />
+            <span className={`w-6 h-0.5 bg-primary rounded-full transition-all duration-300 ${mobileMenuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
           </button>
         </div>
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden absolute top-full left-0 right-0 bg-card/95 backdrop-blur-lg border-t border-border shadow-xl animate-slide-in-down">
-            <div className="container mx-auto px-4 py-6 space-y-4">
-              <Link
-                href="/o-nas"
-                className="flex items-center gap-3 text-foreground hover:text-primary transition-colors font-semibold py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Home className="w-5 h-5" />O nas
-              </Link>
-              <Link
-                href="/aktualnosci"
-                className="flex items-center gap-3 text-foreground hover:text-primary transition-colors font-semibold py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Newspaper className="w-5 h-5" />
-                Aktualności
+          <div className="lg:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-2xl border-t border-border shadow-2xl animate-in slide-in-from-top-4">
+            <div className="container mx-auto px-6 py-6 space-y-2 max-h-[80vh] overflow-y-auto">
+              <Link href="/" className="block py-3 text-lg font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+                Start
               </Link>
 
               <div>
-                <button
-                  onClick={() => setGroupsMenuOpen(!groupsMenuOpen)}
-                  className="flex items-center justify-between w-full gap-3 text-foreground hover:text-primary transition-colors font-semibold py-2"
-                >
-                  <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5" />
-                    Grupy
-                  </div>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${groupsMenuOpen ? "rotate-180" : ""}`} />
+                <button onClick={() => setSchoolMenuOpen(!schoolMenuOpen)} className="flex items-center justify-between w-full py-3 text-lg font-medium text-foreground hover:text-primary">
+                  Szkoła
+                  <ChevronDown className={`w-5 h-5 transition-transform ${schoolMenuOpen ? "rotate-180" : ""}`} />
                 </button>
-                {groupsMenuOpen && (
-                  <div className="ml-8 mt-2 space-y-2">
-                    {groups.map((group) => (
-                      <Link
-                        key={group.slug}
-                        href={`/grupy/${group.slug}`}
-                        className="flex items-center gap-3 py-2 text-foreground hover:text-primary transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: group.color }} />
-                        <span className="text-sm">{group.name}</span>
+                {schoolMenuOpen && (
+                  <div className="pl-4 py-2 border-l border-border/50 ml-2 space-y-2">
+                    {schoolLinks.map((link) => (
+                      <Link key={link.slug} href={`/${link.slug}`} className="block py-2 text-muted-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+                        {link.name}
                       </Link>
                     ))}
                   </div>
                 )}
               </div>
 
-              <Link
-                href="/galeria"
-                className="flex items-center gap-3 text-foreground hover:text-primary transition-colors font-semibold py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Camera className="w-5 h-5" />
+              <div>
+                <button onClick={() => setParentMenuOpen(!parentMenuOpen)} className="flex items-center justify-between w-full py-3 text-lg font-medium text-foreground hover:text-primary">
+                  Dla ucznia i rodzica
+                  <ChevronDown className={`w-5 h-5 transition-transform ${parentMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+                {parentMenuOpen && (
+                  <div className="pl-4 py-2 border-l border-border/50 ml-2 space-y-2">
+                    {parentLinks.map((link) => (
+                      <Link key={link.slug} href={`/${link.slug}`} className="block py-2 text-muted-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+                        {link.name}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <Link href="/aktualnosci" className="block py-3 text-lg font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
+                Aktualności
+              </Link>
+              <Link href="/galeria" className="block py-3 text-lg font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
                 Galeria
               </Link>
-              <Link
-                href="/rekrutacja"
-                className="flex items-center gap-3 text-foreground hover:text-primary transition-colors font-semibold py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <GraduationCap className="w-5 h-5" />
-                Rekrutacja
-              </Link>
-              <Link
-                href="/kontakt"
-                className="flex items-center gap-3 text-foreground hover:text-primary transition-colors font-semibold py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Mail className="w-5 h-5" />
+              <Link href="/kontakt" className="block py-3 text-lg font-medium text-foreground hover:text-primary" onClick={() => setMobileMenuOpen(false)}>
                 Kontakt
               </Link>
+
+              <div className="pt-6 pb-2">
+                <Link href="https://portal.librus.pl/rodzina" className="flex items-center justify-center gap-2 w-full py-4 text-secondary-foreground bg-secondary font-semibold rounded-full hover:opacity-90">
+                  <Laptop className="w-5 h-5" />
+                  Dziennik elektroniczny
+                </Link>
+              </div>
             </div>
           </div>
         )}
